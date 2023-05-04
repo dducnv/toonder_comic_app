@@ -1,5 +1,8 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toonder_comic/src/blocs/banner_bloc/banner_bloc.dart';
+import 'package:toonder_comic/src/blocs/banner_bloc/banner_event.dart';
+import 'package:toonder_comic/src/blocs/banner_bloc/banner_state.dart';
 import 'package:toonder_comic/src/constants/color.global.dart';
-import 'package:toonder_comic/src/networks/network_request.dart';
 import 'package:flutter/material.dart';
 import 'package:page_indicator/page_indicator.dart';
 import 'package:progressive_image/progressive_image.dart';
@@ -16,18 +19,14 @@ class CarouselCustom extends StatefulWidget {
 
 class _CarouselCustomState extends State<CarouselCustom>
     with SingleTickerProviderStateMixin {
+  final BannerBloc _bannerBloc = BannerBloc();
   int _activeIndex = 0;
   final PageController _controller = PageController(initialPage: 0);
-  List<BannerModal> bannerData = [];
+  List<Info> bannerData = [];
   @override
   void initState() {
+    _bannerBloc.add(GetBannerList());
     super.initState();
-    NetworkRequest.fetchBanners().then((res) {
-      setState(() {
-        bannerData = res;
-      });
-    }).catchError((onError) => {});
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateSlider());
   }
 
   void _animateSlider() {
@@ -47,43 +46,73 @@ class _CarouselCustomState extends State<CarouselCustom>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.8,
-          child: PageView.builder(
+    return BlocProvider(
+      create: (_) => _bannerBloc,
+      child: BlocListener<BannerBloc, BannerState>(
+        listener: (context, state) {
+          if (state is BannerError) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message!)));
+          }
+        },
+        child: BlocBuilder<BannerBloc, BannerState>(
+          builder: (context, state) {
+            if (state is BannerInitial) {
+              return _buildLoading();
+            } else if (state is BannerLoading) {
+              return _buildLoading();
+            } else if (state is BannerLoaded) {
+              return buildCarousel(context, state.banner);
+            } else if (state is BannerError) {
+              return Container();
+            } else {
+              return Container();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildCarousel(BuildContext context, BannerModel model) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        children: [
+          PageView.builder(
+            key: const PageStorageKey('carousel_banner'),
             controller: _controller,
-            itemCount: bannerData.length,
+            itemCount: model.info?.length,
             onPageChanged: (page) {
               setState(() {
                 _activeIndex = page;
               });
             },
             itemBuilder: (context, index) {
-              final urlImage = bannerData[index];
-              return buildImage(urlImage.imgUrl as String, index);
+              final urlImage = model.info?[index];
+              return buildImage(urlImage?.imgUrl as String, index);
             },
           ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: 25,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.center,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                  GlobalColors.bgColor.withOpacity(0.1),
-                  GlobalColors.bgColor.withOpacity(0.4),
-                  GlobalColors.bgColor.withOpacity(1)
-                ])),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: 25,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.center,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                    GlobalColors.bgColor.withOpacity(0.1),
+                    GlobalColors.bgColor.withOpacity(0.4),
+                    GlobalColors.bgColor.withOpacity(1)
+                  ])),
+            ),
           ),
-        ),
-        Positioned(bottom: 20, child: buildIndicator()),
-      ],
+          Positioned(bottom: 25, child: buildIndicator(model)),
+        ],
+      ),
     );
   }
 
@@ -95,20 +124,22 @@ class _CarouselCustomState extends State<CarouselCustom>
           thumbnail: NetworkImage(urlImage),
           // size: 1.29MB
           image: NetworkImage(urlImage),
-          height: MediaQuery.of(context).size.height * 0.8,
+          height: MediaQuery.of(context).size.height * 0.7,
           width: double.infinity,
+          fit: BoxFit.cover,
         ),
       );
 
-  Widget buildIndicator() => AnimatedSmoothIndicator(
+  Widget buildIndicator(BannerModel bannerModel) => AnimatedSmoothIndicator(
         activeIndex: _activeIndex,
         onDotClicked: (index) => _controller.animateToPage(index,
-            duration: Duration(milliseconds: 300), curve: Curves.linear),
-        count: bannerData.length,
+            duration: const Duration(milliseconds: 300), curve: Curves.linear),
+        count: bannerModel.info!.length,
         effect: ScrollingDotsEffect(
             dotColor: GlobalColors.nonActiveColor.withOpacity(0.4),
             activeDotColor: GlobalColors.orangeColor,
             dotWidth: 13,
             dotHeight: 13),
       );
+  Widget _buildLoading() => const Center(child: CircularProgressIndicator());
 }

@@ -1,20 +1,21 @@
 import 'package:toonder_comic/src/constants/color.global.dart';
 import 'package:toonder_comic/src/ui/widgets/carousel_custom.dart';
-import 'package:toonder_comic/src/ui/widgets/home_carousel.dart';
-import 'package:toonder_comic/src/ui/widgets/list_category_book.dart';
-import 'package:toonder_comic/src/constants/color.global.dart';
+import 'package:toonder_comic/src/ui/widgets/list_books.dart';
 import 'package:flutter/material.dart';
 import '../widgets/home_appbar.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  PageController pageController;
+  HomeScreen({super.key, required this.pageController});
 
   @override
   State<HomeScreen> createState() => HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   int _selected = 0;
+
   final PageController controller = PageController(initialPage: 0);
 
   @override
@@ -30,7 +31,7 @@ class HomeScreenState extends State<HomeScreen> {
       backgroundColor: GlobalColors.bgColor,
       appBar: const HomeAppBar(),
       drawer: Padding(
-        padding: const EdgeInsets.only(bottom: 85, top: 25),
+        padding: const EdgeInsets.only(bottom: 10, top: 25),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
               topRight: Radius.circular(30), bottomRight: Radius.circular(30)),
@@ -141,20 +142,23 @@ class HomeScreenState extends State<HomeScreen> {
         scrollDirection: Axis.vertical,
         child: Column(
           children: [
-            CarouselCustom(),
-            ListCategoryBook(),
+            const CarouselCustom(),
+            const ListBooks(),
             Container(
               clipBehavior: Clip.hardEdge,
               height: 44.0,
+              margin: const EdgeInsets.only(bottom: 30),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  borderRadius: const BorderRadius.all(Radius.circular(30)),
                   gradient: GlobalColors.buttonBottomBarGradient),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  widget.pageController.jumpToPage(1);
+                },
                 style: ElevatedButton.styleFrom(
                     primary: Colors.transparent,
                     shadowColor: Colors.transparent),
-                child: Text('Elevated Button'),
+                child: const Text('Khám phá thêm'),
               ),
             ),
           ],
@@ -162,8 +166,13 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
+// ignore: must_be_immutable
 class SidebarButton extends StatelessWidget {
   final IconData icon;
   final String title;

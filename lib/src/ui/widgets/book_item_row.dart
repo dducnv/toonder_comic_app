@@ -1,10 +1,11 @@
 import 'package:toonder_comic/src/constants/color.global.dart';
-import 'package:toonder_comic/src/models/book.dart';
 import 'package:flutter/material.dart';
 import 'package:progressive_image/progressive_image.dart';
 
+import '../../models/book.dart';
+
 class BookItemRow extends StatelessWidget {
-  BookModel? bookModel;
+  DatumDatum? bookModel;
   int? index;
   BookItemRow({Key? key, this.bookModel, this.index}) : super(key: key);
 
@@ -73,7 +74,7 @@ class BookItemRow extends StatelessWidget {
                 Row(children: [
                   Icon(Icons.favorite, color: Colors.grey, size: 15),
                   SizedBox(width: 5),
-                  Text('200',
+                  Text(bookModel!.totalLikeNo!.toString(),
                       style: TextStyle(color: Colors.grey, fontSize: 15))
                 ]),
               ],

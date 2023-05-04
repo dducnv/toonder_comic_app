@@ -1,21 +1,17 @@
 import 'dart:convert';
 
 import 'package:toonder_comic/src/constants/color.global.dart';
-import 'package:toonder_comic/src/models/book.dart';
-import 'package:toonder_comic/src/models/category.dart';
 import 'package:flutter/material.dart';
+import 'package:toonder_comic/src/models/book.dart';
 
 import 'package:toonder_comic/src/ui/widgets/book_item.dart';
 
 class CategoryItemListView extends StatelessWidget {
-  CategoryModel? categoryModel;
-  CategoryItemListView({Key? key, this.categoryModel}) : super(key: key);
+  Info bookModel;
+
+  CategoryItemListView({Key? key, required this.bookModel}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    List<BookModel> books = categoryModel!.data!.map((e) {
-      return BookModel.fromJson(e);
-    }).toList();
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -23,7 +19,7 @@ class CategoryItemListView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${categoryModel!.title}',
+              Text('${bookModel.title}',
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -42,11 +38,11 @@ class CategoryItemListView extends StatelessWidget {
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
-              itemCount: books.length,
+              itemCount: bookModel.data?.length,
               itemBuilder: (context, index) {
                 return Row(
                   children: [
-                    BookItem(bookModel: books[index]),
+                    BookItem(bookModel: bookModel.data![index]),
                     const SizedBox(
                       width: 10,
                     )

@@ -1,4 +1,4 @@
-#Thu Apr 13 10:48:54 ICT 2023
-base.0=F\:\\flutter_projects\\toonder_comic\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
-renamed.0=classes.dex
+#Thu May 04 13:31:11 ICT 2023
+base.0=D\:\\Flutter Projects\\toonder_comic_app\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
+renamed.0=classes.dex

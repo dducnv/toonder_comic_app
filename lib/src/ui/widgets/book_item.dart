@@ -1,10 +1,10 @@
 import 'package:toonder_comic/src/constants/color.global.dart';
-import 'package:toonder_comic/src/models/book.dart';
 import 'package:flutter/material.dart';
 import 'package:progressive_image/progressive_image.dart';
+import 'package:toonder_comic/src/models/book.dart';
 
 class BookItem extends StatelessWidget {
-  BookModel? bookModel;
+  InfoDatum? bookModel;
 
   BookItem({required this.bookModel});
 
@@ -44,7 +44,8 @@ class BookItem extends StatelessWidget {
               decoration: BoxDecoration(
                   gradient: GlobalColors.categoryBgGradient,
                   borderRadius: const BorderRadius.all(Radius.circular(100))),
-              child: Text('${bookModel!.categoryList}',
+              child: Text(
+                  '${bookModel!.categoryList ?? bookModel!.categoryName}',
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
